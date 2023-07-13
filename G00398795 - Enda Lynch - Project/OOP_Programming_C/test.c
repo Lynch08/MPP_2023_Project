@@ -36,7 +36,7 @@ typedef struct {
     char name[50];
     Module modules[6];
     float gpa;
-    char highest_module[30];
+    char highest_module[100];
 } Student;
 
 // Function to calculate the letter grade based on the mark
@@ -101,7 +101,14 @@ void process_data(Student* students, int num_students) {
             token = strtok(NULL, ",");
             students[i].modules[j].mark = atoi(token);
             calculate_letter_grade(&students[i].modules[j]);
+            
         }
+
+        calculate_highest_scoring_module(&students[i]);
+
+        
+        // NEED TO ADD FUNCTIONALITY HERE TO FOR THE REST OF THE OUTPUT TO THE COMMAND LINE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
         calculate_gpa(&students[i]);
     }
 
@@ -110,13 +117,13 @@ void process_data(Student* students, int num_students) {
 
 int main() {
     // Read the data from the CSV file and process it
-    Student students[10];  // Assuming there are 10 students in the CSV file
+    Student students[10];  // Assuming there are 10 students or less in the CSV file
     process_data(students, 10);
 
     // Display the results
-    printf("Student Name\t\tGPA\tHighest Scoring Module\n");
+    printf("Student Name\t\tGPA\tHighest Scoring Module\tLowest Scoring Module\t Standard Diviation\tMedian Value\tGPA Difference from 4.2\n");
     for (int i = 0; i < 10; i++) {
-        printf("%s\t\t%.2f\n", students[i].name, students[i].gpa,students[i].highest_module);
+        printf("%s\t\t%.2f\t%s\n", students[i].name, students[i].gpa,students[i].highest_module);
     }
 
     // Run live mode for calculating GPA
@@ -137,7 +144,7 @@ int main() {
         }
         calculate_gpa(&live_student);
 
-        printf("GPA:\tHighest Scoring Module", live_student.gpa,live_student.highest_module);
+        printf("GPA: %.2f\n", live_student.gpa);
 
         printf("Do you want to calculate another GPA? (y/n): ");
         scanf(" %c", &choice);

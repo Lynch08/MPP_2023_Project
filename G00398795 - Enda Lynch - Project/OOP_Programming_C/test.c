@@ -26,17 +26,17 @@ GPA_Scale gpa_scale[] = {
 
 // Define the Module structure
 typedef struct {
-    char name[30];
+    char name[100];
     int mark;
     char grade[3];
 } Module;
 
 // Define the Student structure
 typedef struct {
-    char name[50];
+    char name[100];
     Module modules[6];
     float gpa;
-    char highest_module[100];
+    char highest_module[200];
 } Student;
 
 // Function to calculate the letter grade based on the mark

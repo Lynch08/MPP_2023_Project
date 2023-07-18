@@ -33,17 +33,21 @@ class GPA_Calculator:
         else:
             return 'A'
 
+    # Calculate GPA based on the marks
     def calculate_gpa(self, marks):
         letter_grades = [self.calculate_letter_grade(mark) for mark in marks]
         gpa = sum(self.gpa_scale[letter_grade] for letter_grade in letter_grades) / len(self.module_columns)
         return gpa
 
+     # Read the data from a CSV file
     def process_data(self, filename):
         df = pd.read_csv(filename)
 
         for module in self.module_columns:
             df[module + ' - Letter Grade'] = df[module].apply(self.calculate_letter_grade)
 
+        # Calculate GPA, highest scoring module, lowest scoring module, standard deviation,
+        # median value, and GPA difference from 4.2 for each student
         df['GPA'] = df[[module + ' - Letter Grade' for module in self.module_columns]].applymap(lambda x: self.gpa_scale[x]).mean(axis=1)
         df['Highest Scoring Module'] = df[self.module_columns].idxmax(axis=1)
         df['Lowest Scoring Module'] = df[self.module_columns].idxmin(axis=1)
@@ -51,9 +55,11 @@ class GPA_Calculator:
         df['Median Value'] = df[self.module_columns].apply(lambda row: statistics.median(row), axis=1)
         df['GPA Difference from 4.2'] = 4.2 - df['GPA']
 
+        # Return a subset of the DataFrame with selected columns
         return df[['Student Name', 'GPA', 'Highest Scoring Module', 'Lowest Scoring Module', 'Standard Deviation',
                     'Median Value', 'GPA Difference from 4.2']]
 
+    # Run the GPA calculator in live mode, allowing input of marks and GPA calculation multiple times
     def run_live_mode(self):
         print('\n--- Live Mode: GPA Calculator ---')
         while True:
@@ -62,6 +68,7 @@ class GPA_Calculator:
                 mark = input(f"Enter the mark for {module}: ")
                 marks.append(float(mark))
             
+            # Calculate GPA based on the entered marks
             gpa = self.calculate_gpa(marks)
             print(f'GPA: {gpa}\n')
 

@@ -1,7 +1,7 @@
 import pandas as pd
 import statistics
 
-class GPAHelper:
+class GPAScale:
     def __init__(self):
         self.gpa_scale = {
             'A+': 4.2,
@@ -45,9 +45,9 @@ class Student:
     def add_mark(self, module, mark):
         self.marks[module] = mark
 
-    def calculate_gpa(self, gpa_helper):
+    def calculate_gpa(self, gpa_scale):
         marks = list(self.marks.values())
-        return gpa_helper.calculate_gpa(marks)
+        return gpa_scale.calculate_gpa(marks)
 
 class CSVManager:
     def __init__(self, csv_file):
@@ -63,15 +63,15 @@ class GPACalculator:
     def __init__(self, module_columns, csv_file):
         self.module_columns = module_columns
         self.csv_manager = CSVManager(csv_file)
-        self.gpa_helper = GPAHelper()
+        self.gpa_scale = GPAScale()
 
     def process_data(self):
         df = self.csv_manager.read_data()
 
         for module in self.module_columns:
-            df[module + ' - Letter Grade'] = df[module].apply(self.gpa_helper.calculate_letter_grade)
+            df[module + ' - Letter Grade'] = df[module].apply(self.gpa_scale.calculate_letter_grade)
 
-        df['GPA'] = df[[module + ' - Letter Grade' for module in self.module_columns]].applymap(lambda x: self.gpa_helper.gpa_scale[x]).mean(axis=1)
+        df['GPA'] = df[[module + ' - Letter Grade' for module in self.module_columns]].applymap(lambda x: self.gpa_scale.gpa_scale[x]).mean(axis=1)
         df['Highest Scoring Module'] = df[self.module_columns].idxmax(axis=1)
         df['Lowest Scoring Module'] = df[self.module_columns].idxmin(axis=1)
         df['Standard Deviation'] = df[self.module_columns].apply(lambda row: statistics.stdev(row), axis=1)
@@ -99,7 +99,7 @@ class GPACalculator:
                 mark = float(input(f"Enter the mark for {module}: "))
                 student.add_mark(module, mark)
             
-            gpa = student.calculate_gpa(self.gpa_helper)
+            gpa = student.calculate_gpa(self.gpa_scale)
             print(f'GPA for {student_name}: {gpa:.2f}\n')
 
             # Construct a DataFrame from a dictionary containing the new student's data
@@ -135,7 +135,7 @@ class GPACalculator:
                     mark = float(input(f"Enter the mark for {module}: "))
                     student.add_mark(module, mark)
 
-                gpa = student.calculate_gpa(self.gpa_helper)
+                gpa = student.calculate_gpa(self.gpa_scale)
                 print(f'GPA for {student_name}: {gpa:.2f}\n')
 
                 # Construct a DataFrame from a dictionary containing the new student's data

@@ -54,8 +54,8 @@ def process_data(module_columns, csv_file):
 def run_live_mode(module_columns, csv_file):
     print('\n--- Live Mode: GPA Calculator ---')
     while True:
-        student_name = input("Enter student name (or 'q' to quit): ")
-        if student_name.lower() == 'q':
+        student_name = input("Enter student name (or 'm' for menu): ")
+        if student_name.lower() == 'm':
             break
 
         df = pd.read_csv(csv_file)

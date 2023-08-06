@@ -50,17 +50,9 @@ class GPACalculator:
 
             # Get module marks from the user and add them to the Student instance
             for module in self.module_columns:
-                while True:
-                    try:
-                        mark = float(input(f"Enter the mark for {module}: "))
-                        if 0 <= mark <= 100:
-                            break
-                        else:
-                            print("Invalid input. Please enter a value between 0 and 100.")
-                    except ValueError:
-                        print("Invalid input. Please enter a numeric value.")
+                mark = float(input(f"Enter the mark for {module}: "))
                 student.add_mark(module, mark)
-
+            
             # Calculate the GPA for the student and print the result
             gpa = student.calculate_gpa(self.gpa_scale)
             print(f'GPA for {student_name}: {gpa:.2f}\n')
@@ -98,15 +90,7 @@ class GPACalculator:
 
                 # Get module marks from the user and add them to the Student instance
                 for module in self.module_columns:
-                    while True:
-                        try:
-                            mark = float(input(f"Enter the mark for {module}: "))
-                            if 0 <= mark <= 100:
-                                break
-                            else:
-                                print("Invalid input. Please enter a value between 0 and 100.")
-                        except ValueError:
-                            print("Invalid input. Please enter a numeric value.")
+                    mark = float(input(f"Enter the mark for {module}: "))
                     student.add_mark(module, mark)
 
                 # Calculate the GPA for the student and print the result

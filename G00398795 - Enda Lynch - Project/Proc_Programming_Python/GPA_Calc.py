@@ -36,20 +36,30 @@ def calculate_gpa(marks):
     return gpa
 
 def process_data(module_columns, csv_file):
-    df = pd.read_csv(csv_file)
+    try:
+        df = pd.read_csv(csv_file)
 
-    for module in module_columns:
-        df[module + ' - Letter Grade'] = df[module].apply(calculate_letter_grade)
+        for module in module_columns:
+            df[module + ' - Letter Grade'] = df[module].apply(calculate_letter_grade)
 
-    df['GPA'] = df[[module + ' - Letter Grade' for module in module_columns]].applymap(lambda x: gpa_scale[x]).mean(axis=1)
-    df['Highest Scoring Module'] = df[module_columns].idxmax(axis=1)
-    df['Lowest Scoring Module'] = df[module_columns].idxmin(axis=1)
-    df['Standard Deviation'] = df[module_columns].apply(lambda row: statistics.stdev(row), axis=1)
-    df['Median Value'] = df[module_columns].apply(lambda row: statistics.median(row), axis=1)
-    df['GPA Difference from 4.2'] = 4.2 - df['GPA']
+        df['GPA'] = df[[module + ' - Letter Grade' for module in module_columns]].applymap(lambda x: gpa_scale[x]).mean(axis=1)
+        df['Highest Scoring Module'] = df[module_columns].idxmax(axis=1)
+        df['Lowest Scoring Module'] = df[module_columns].idxmin(axis=1)
+        df['Standard Deviation'] = df[module_columns].apply(lambda row: statistics.stdev(row), axis=1)
+        df['Median Value'] = df[module_columns].apply(lambda row: statistics.median(row), axis=1)
+        df['GPA Difference from 4.2'] = 4.2 - df['GPA']
 
-    return df[['Student Name', 'GPA', 'Highest Scoring Module', 'Lowest Scoring Module', 'Standard Deviation',
-               'Median Value', 'GPA Difference from 4.2']]
+        return df[['Student Name', 'GPA', 'Highest Scoring Module', 'Lowest Scoring Module', 'Standard Deviation',
+                   'Median Value', 'GPA Difference from 4.2']]
+    except FileNotFoundError:
+        print(f"Error: Unable to open file '{csv_file}'")
+        return None
+    except pd.errors.EmptyDataError:
+        print(f"Error: The CSV file '{csv_file}' is empty or contains no data.")
+        return None
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return None
 
 def run_live_mode(module_columns, csv_file):
     print('\n--- Live Mode: GPA Calculator ---')
@@ -58,41 +68,7 @@ def run_live_mode(module_columns, csv_file):
         if student_name.lower() == 'm':
             break
 
-        df = pd.read_csv(csv_file)
-        if student_name in df['Student Name'].values:
-            print(f"Data for '{student_name}' already exists in the CSV. Skipping...\n")
-            continue
-
-        marks = []
-        for module in module_columns:
-            mark = float(input(f"Enter the mark for {module}: "))
-            marks.append(mark)
-        
-        gpa = calculate_gpa(marks)
-        print(f'GPA for {student_name}: {gpa:.2f}\n')
-
-        # Construct a DataFrame from a dictionary containing the new student's data
-        data_input = {"Student Name": [student_name]}
-        for i, module in enumerate(module_columns):
-            data_input[module] = [marks[i]]
-        new_student_df = pd.DataFrame(data_input)
-
-        df = pd.concat([df, new_student_df], ignore_index=True)
-        df.to_csv(csv_file, index=False)
-
-    while True:
-        choice = input("Do you want to add another new student, display updated data, or process data again? (add/display/process/quit): ")
-        if choice.lower() == 'quit':
-            break
-        elif choice.lower() == 'display':
-            print('\n--- Updated CSV Data ---')
-            df = pd.read_csv(csv_file)
-            print(df)
-        elif choice.lower() == 'add':
-            student_name = input("Enter student name: ")
-            if student_name.lower() == 'q':
-                break
-
+        try:
             df = pd.read_csv(csv_file)
             if student_name in df['Student Name'].values:
                 print(f"Data for '{student_name}' already exists in the CSV. Skipping...\n")
@@ -100,9 +76,17 @@ def run_live_mode(module_columns, csv_file):
 
             marks = []
             for module in module_columns:
-                mark = float(input(f"Enter the mark for {module}: "))
-                marks.append(mark)
-            
+                while True:
+                    try:
+                        mark = float(input(f"Enter the mark for {module}: "))
+                        if 0 <= mark <= 100:
+                            marks.append(mark)
+                            break
+                        else:
+                            print("Invalid mark. Please enter a value between 0 and 100.")
+                    except ValueError:
+                        print("Invalid input. Please enter a valid score.")
+        
             gpa = calculate_gpa(marks)
             print(f'GPA for {student_name}: {gpa:.2f}\n')
 
@@ -114,10 +98,73 @@ def run_live_mode(module_columns, csv_file):
 
             df = pd.concat([df, new_student_df], ignore_index=True)
             df.to_csv(csv_file, index=False)
+        except FileNotFoundError:
+            print(f"Error: Unable to open file '{csv_file}'")
+            return
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return
+
+    while True:
+        choice = input("Do you want to add another new student, display updated data, or process data again? (add/display/process/quit): ")
+        if choice.lower() == 'quit':
+            break
+        elif choice.lower() == 'display':
+            try:
+                print('\n--- Updated CSV Data ---')
+                df = pd.read_csv(csv_file)
+                print(df)
+            except FileNotFoundError:
+                print(f"Error: Unable to open file '{csv_file}'")
+        elif choice.lower() == 'add':
+            student_name = input("Enter student name: ")
+            if student_name.lower() == 'q':
+                break
+
+            try:
+                df = pd.read_csv(csv_file)
+                if student_name in df['Student Name'].values:
+                    print(f"Data for '{student_name}' already exists in the CSV. Skipping...\n")
+                    continue
+
+                marks = []
+                for module in module_columns:
+                    while True:
+                        try:
+                            mark = float(input(f"Enter the mark for {module}: "))
+                            if 0 <= mark <= 100:
+                                marks.append(mark)
+                                break
+                            else:
+                                print("Invalid mark. Please enter a value between 0 and 100.")
+                        except ValueError:
+                            print("Invalid input. Please enter a valid score.")
+                
+                gpa = calculate_gpa(marks)
+                print(f'GPA for {student_name}: {gpa:.2f}\n')
+
+                # Construct a DataFrame from a dictionary containing the new student's data
+                data_input = {"Student Name": [student_name]}
+                for i, module in enumerate(module_columns):
+                    data_input[module] = [marks[i]]
+                new_student_df = pd.DataFrame(data_input)
+
+                df = pd.concat([df, new_student_df], ignore_index=True)
+                df.to_csv(csv_file, index=False)
+            except FileNotFoundError:
+                print(f"Error: Unable to open file '{csv_file}'")
+                return
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
+                return
         elif choice.lower() == 'process':
-            df = process_data(module_columns, csv_file)
-            print('\n--- Processed Data ---')
-            print(df)
+            try:
+                df = process_data(module_columns, csv_file)
+                if df is not None:
+                    print('\n--- Processed Data ---')
+                    print(df)
+            except FileNotFoundError:
+                print(f"Error: Unable to open file '{csv_file}'")
         else:
             print("Invalid choice. Please enter 'add', 'display', 'process', or 'quit'.")
             continue
@@ -130,9 +177,12 @@ if __name__ == "__main__":
     csv_file = 'MPPSample.csv'
 
     # Process the data from the CSV file and display the results
-    df = process_data(module_columns, csv_file)
-    print(df)
+    try:
+        df = process_data(module_columns, csv_file)
+        if df is not None:
+            print(df)
+    except FileNotFoundError:
+        print(f"Error: Unable to open file '{csv_file}'")
 
     # Run live mode for calculating GPA
     run_live_mode(module_columns, csv_file)
-

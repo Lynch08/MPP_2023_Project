@@ -20,7 +20,7 @@ struct GPAScale {
 struct GPAScale gpa_scale[] = {
     {"A+", 4.2},
     {"A", 4.0},
-    {"A-", 3.8},
+    {"A-", 3.7},
     {"B+", 3.3},
     {"B", 3.0},
     {"B-", 2.7},

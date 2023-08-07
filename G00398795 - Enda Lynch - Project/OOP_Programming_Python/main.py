@@ -1,3 +1,4 @@
+# THis file runs the program and calles the relavent classes when required
 from gpa_calculator import GPACalculator
 
 

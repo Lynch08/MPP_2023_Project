@@ -1,3 +1,4 @@
+# This Class will manage the functions that set the scale for the data calculations
 class GPAScale:
     def __init__(self):
         self.gpa_scale = {

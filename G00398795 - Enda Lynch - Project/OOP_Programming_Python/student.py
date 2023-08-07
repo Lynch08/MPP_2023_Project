@@ -1,3 +1,4 @@
+# THis class allows for the management of student data, including their name, module-wise marks, and the calculation of their GPA based on a provided GPA scale.
 class Student:
     def __init__(self, name, module_columns):
         self.name = name

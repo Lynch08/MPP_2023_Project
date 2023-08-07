@@ -1,3 +1,4 @@
+# This class will manage the functions that initialize, read and save the data from the CSV File
 import pandas as pd
 
 class CSVManager:

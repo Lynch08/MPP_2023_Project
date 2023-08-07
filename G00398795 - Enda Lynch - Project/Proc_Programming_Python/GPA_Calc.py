@@ -1,6 +1,8 @@
+# Import libraries
 import pandas as pd
 import statistics
 
+# Define the GPA scale mapping letter grades to GPA values
 gpa_scale = {
     'A+': 4.2,
     'A': 4.0,
@@ -16,6 +18,7 @@ gpa_scale = {
     'F': 0.0
 }
 
+# Function to calculate letter grades based on numeric marks
 def calculate_letter_grade(mark):
     if mark < 50:
         return 'F'
@@ -30,18 +33,22 @@ def calculate_letter_grade(mark):
     else:
         return 'A'
 
+# Function to calculate GPA from a list of marks
 def calculate_gpa(marks):
     letter_grades = [calculate_letter_grade(mark) for mark in marks]
     gpa = sum(gpa_scale[letter_grade] for letter_grade in letter_grades) / len(marks)
     return gpa
 
+# Function to process data from a CSV file 
 def process_data(module_columns, csv_file):
     try:
         df = pd.read_csv(csv_file)
 
+        # Calculate letter grades for each module
         for module in module_columns:
             df[module + ' - Letter Grade'] = df[module].apply(calculate_letter_grade)
 
+        # Calculate statistics for each student
         df['GPA'] = df[[module + ' - Letter Grade' for module in module_columns]].applymap(lambda x: gpa_scale[x]).mean(axis=1)
         df['Highest Scoring Module'] = df[module_columns].idxmax(axis=1)
         df['Lowest Scoring Module'] = df[module_columns].idxmin(axis=1)
@@ -49,6 +56,7 @@ def process_data(module_columns, csv_file):
         df['Median Value'] = df[module_columns].apply(lambda row: statistics.median(row), axis=1)
         df['GPA Difference from 4.2'] = 4.2 - df['GPA']
 
+        # Return the relevant columns of the DataFrame for display
         return df[['Student Name', 'GPA', 'Highest Scoring Module', 'Lowest Scoring Module', 'Standard Deviation',
                    'Median Value', 'GPA Difference from 4.2']]
     except FileNotFoundError:
@@ -60,7 +68,9 @@ def process_data(module_columns, csv_file):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return None
+    
 
+# Function to run the live mode GPA calculator
 def run_live_mode(module_columns, csv_file):
     print('\n--- Live Mode: GPA Calculator ---')
     while True:
@@ -73,7 +83,8 @@ def run_live_mode(module_columns, csv_file):
             if student_name in df['Student Name'].values:
                 print(f"Data for '{student_name}' already exists in the CSV. Skipping...\n")
                 continue
-
+                
+                # Input marks for each module and calculate GPA for the new student
             marks = []
             for module in module_columns:
                 while True:
@@ -96,6 +107,7 @@ def run_live_mode(module_columns, csv_file):
                 data_input[module] = [marks[i]]
             new_student_df = pd.DataFrame(data_input)
 
+            # Concatenate the new student's data with the existing DataFrame and save to the CSV file
             df = pd.concat([df, new_student_df], ignore_index=True)
             df.to_csv(csv_file, index=False)
         except FileNotFoundError:
@@ -104,7 +116,8 @@ def run_live_mode(module_columns, csv_file):
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
             return
-
+        
+    # Additional Operations
     while True:
         choice = input("Do you want to add another new student, display updated data, or process data again? (add/display/process/quit): ")
         if choice.lower() == 'quit':
